@@ -15,17 +15,20 @@ router.post('/', validateUser, (req, res) => { // validateUser,
     });
 });
 
-router.post('/:id/posts', validatePost, (req, res) => { //validatePost
-  const userId = req.params.id;
-  PostDB.insert(req.body)
-    .then(comment => {
-      res.status(201).json(comment)
-    })
-    .catch(error => {
-        console.log(error);
-        res.status(500).json({error: "There was an error while saving the comment to the database"});
-    });
-});
+router.post('/:id/posts', validateUserId, validatePost, (req, res) => { // validatePost
+  if (!req.body.user_id) {
+    res.status(400).json({error: ""})
+  } else {
+      PostDB.insert(req.body)
+        .then(post => {
+          res.status(201).json(post)
+          })
+        .catch(error => {
+          console.log(error);
+          res.status(500).json({error: "There was an error while saving the post to the database"});
+        });
+      }
+  })
 
 
 router.get('/', (req, res) => {
@@ -42,8 +45,8 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', validateUserId, (req, res) => { // validateUserId,
-  const userId = req.params.id;
-      UserDB.getById(userId)
+  const user_id = req.params.id;
+      UserDB.getById(user_id)
       .then(user => {
           res.status(200).json(user)
       })
@@ -55,16 +58,16 @@ router.get('/:id', validateUserId, (req, res) => { // validateUserId,
       });
 });
 
-router.get('/:id/posts', validatePost, (req, res) => { //validatePost
-  const userId = req.params.id;
-  UserDB.getUserPosts(userId)
-  .then(comments => {
-      res.status(200).json(comments)
+router.get('/:id/posts', validatePost, (req, res) => { // validatePost,
+  const user_id = req.params.id;
+  UserDB.getUserPosts(user_id)
+  .then(posts => {
+      res.status(200).json(posts)
   })
   .catch(error => {
       console.log(error);
       res.status(500).json({
-          message: "Error retrieving the comments",
+          message: "Error retrieving the posts",
       });
   });
 });
@@ -123,8 +126,6 @@ function validateUser(req, res, next) {
 function validatePost(req, res, next) {
   if (!req.body) {
     res.status(400).json({message: "Missing post data"})
-  } else if (!req.body.text) {
-    res.status(400).json({message: "Missing required text field"})
   } else {
     next();
   }
