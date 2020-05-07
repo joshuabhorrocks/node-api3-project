@@ -5,7 +5,7 @@ const server = express();
 server.use(express.json());
 
 server.get('/', (req, res) => {
-  res.send(`<h2>Let's write some middleware!</h2>`);
+  res.send(`<h2>Go to https://lotrcharactersapi.herokuapp.com/api/users to see a list of some characters from LOTR!</h2>`);
 });
 
 //custom middleware
